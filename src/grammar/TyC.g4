@@ -1,3 +1,6 @@
+// Student: Ho Phuc Khang
+// Student ID: 2352468
+
 grammar TyC;
 
 @lexer::header {
