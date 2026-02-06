@@ -1,0 +1,23 @@
+........................................................F
+=================================== FAILURES ===================================
+___________________________________ test_057 ___________________________________
+
+    def test_057():
+        source = """
+    void main () {
+       for(; ; -a) continue;
+    }
+    """
+        expected = "Error on line 3 col 13: )"
+>       assert Parser(source).parse() == expected
+E       AssertionError: assert 'Error on line 3 col 11: -' == 'Error on line 3 col 13: )'
+E         
+E         - Error on line 3 col 13: )
+E         ?                      ^  ^
+E         + Error on line 3 col 11: -
+E         ?                      ^  ^
+
+test_parser.py:683: AssertionError
+=========================== short test summary info ============================
+FAILED test_parser.py::test_057 - AssertionError: assert 'Error on line 3 col...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!

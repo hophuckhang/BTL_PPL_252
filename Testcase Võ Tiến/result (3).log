@@ -1,0 +1,25 @@
+........F
+=================================== FAILURES ===================================
+___________________________________ test_009 ___________________________________
+
+    def test_009():
+        source = """
+    void main () {
+        return 1;
+        return 1.0;
+        return "votien";
+        return {1, 2, 1.0}; // struct lit
+        return {};
+    }
+    """
+        expected = "success"
+>       assert Parser(source).parse() == expected
+E       AssertionError: assert 'Error on line 6 col 11: {' == 'success'
+E         
+E         - success
+E         + Error on line 6 col 11: {
+
+test_parser.py:184: AssertionError
+=========================== short test summary info ============================
+FAILED test_parser.py::test_009 - AssertionError: assert 'Error on line 6 col...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!

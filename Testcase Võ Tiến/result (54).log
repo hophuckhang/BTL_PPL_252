@@ -1,0 +1,392 @@
+===== TEST FAIL =====
+....................F
+=================================== FAILURES ===================================
+___________________________________ test_021 ___________________________________
+
+    def test_021():
+        source = """
+    void main () {
+        return +++a;
+    }
+    """
+        expected = "Error on line 3 col 13: +"
+>       assert Parser(source).parse() == expected
+E       AssertionError: assert 'success' == 'Error on line 3 col 13: +'
+E         
+E         - Error on line 3 col 13: +
+E         + success
+
+test_parser.py:303: AssertionError
+=========================== short test summary info ============================
+FAILED test_parser.py::test_021 - AssertionError: assert 'success' == 'Error ...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+===== TyC.g4 CONTENT =====
+grammar TyC;
+
+@lexer::header {
+from lexererr import *
+}
+
+@lexer::members {
+def emit(self):
+    tk = self.type
+    if tk == self.UNCLOSE_STRING:
+        result = super().emit()
+        raise UncloseString(result.text)
+    elif tk == self.ILLEGAL_ESCAPE:
+        result = super().emit()
+        raise IllegalEscape(result.text)
+    elif tk == self.ERROR_CHAR:
+        result = super().emit()
+        raise ErrorToken(result.text)
+    else:
+        return super().emit()
+}
+
+options{
+    language=Python3;
+}
+// =========================
+// PROGRAM / DECLARATIONS
+// =========================
+program     : decl* EOF ;
+decl        : structDecl | funcDecl ;
+
+structDecl  : STRUCT ID LBRACE structMemberDecl* RBRACE SEMI ;
+structMemberDecl
+            : typeSpec ID SEMI ;
+
+funcDecl    : typedFuncDecl | inferredFuncDecl ;
+typedFuncDecl
+            : returnType ID LPAREN paramList? RPAREN blockStmt ;
+inferredFuncDecl
+            : ID LPAREN paramList? RPAREN blockStmt ;
+
+returnType  : typeSpec | VOID ;
+paramList   : param (COMMA param)* ;
+param       : typeSpec ID ;
+
+// =========================
+// STATEMENTS
+// =========================
+blockStmt   : LBRACE stmt* RBRACE ;
+
+stmt
+    : varDeclStmt
+    | ifStmt
+    | whileStmt
+    | forStmt
+    | switchStmt
+    | breakStmt
+    | continueStmt
+    | returnStmt
+    | blockStmt
+    | exprStmt
+    ;
+
+varDeclStmt : (AUTO | typeSpec) ID (ASSIGN initValue)? SEMI ;
+breakStmt   : BREAK SEMI ;
+continueStmt: CONTINUE SEMI ;
+returnStmt  : RETURN expr? SEMI ;
+exprStmt    : expr SEMI ;
+
+ifStmt      : IF LPAREN expr RPAREN stmt (ELSE stmt)? ;
+whileStmt   : WHILE LPAREN expr RPAREN stmt ;
+
+// for (init? ; cond? ; update?) stmt
+forStmt
+    : FOR LPAREN forInit? SEMI expr? SEMI forUpdate? RPAREN stmt
+    ;
+
+forInit
+    : forVarDecl
+    | forAssign
+    | forStructAssign      // <-- thêm để test_098 lỗi tại ';'
+    ;
+
+forVarDecl
+    : (AUTO | typeSpec) ID (ASSIGN initValue)?
+    ;
+
+forAssign
+    : assignLHS ASSIGN initValue
+    ;
+
+// "hack" để nuốt {1,2} nhưng bắt buộc '=' sau nó
+forStructAssign
+    : structLiteral ASSIGN initValue
+    ;
+
+// update: a=b | ++a | --a | a++ | a--
+forUpdate
+    : assignLHS ASSIGN expr
+    | INC assignLHS
+    | DEC assignLHS
+    | assignLHS INC
+    | assignLHS DEC
+    ;
+
+// switch (expr) { (case ... | default ...)* }
+switchStmt
+    : SWITCH LPAREN expr RPAREN LBRACE switchBody RBRACE
+    ;
+
+switchBody
+    : caseClause* defaultClause? caseClause*
+    ;
+
+caseClause
+    : CASE expr COLON stmt*
+    ;
+
+defaultClause
+    : DEFAULT COLON stmt*
+    ;
+
+// =========================
+// TYPES + INITIALIZATION
+// =========================
+typeSpec    : INT | FLOAT | STRING | ID ;
+
+initValue   : expr | structLiteral ;
+structLiteral
+            : LBRACE (initValue (COMMA initValue)*)? RBRACE ;
+
+// =========================
+// EXPRESSIONS (per spec precedence)
+// =========================
+list_expression : expr (COMMA expr)* ;
+expr            : assignExpr ;
+
+// '=' lowest, right-assoc
+assignExpr
+    : assignLHS ASSIGN assignExpr
+    | orExpr
+    ;
+
+// LHS: identifier OR (expr) OR structLiteral, then member chain
+assignLHS
+    : lhsPrimary (DOT ID)*
+    ;
+
+lhsPrimary
+    : ID
+    | structLiteral
+    | LPAREN expr RPAREN
+    ;
+
+// ||, &&, == !=, < <= > >=, + -, * / %
+orExpr          : andExpr (OR  andExpr)* ;
+andExpr         : eqExpr  (AND eqExpr)* ;
+eqExpr          : relExpr ((EQ | NEQ) relExpr)* ;
+relExpr         : addExpr ((LT | LE | GT | GE) addExpr)* ;
+addExpr         : mulExpr ((PLUS | MINUS) mulExpr)* ;
+mulExpr         : unaryExpr ((MUL | DIV | MOD) unaryExpr)* ;
+
+// unary group: prefix ++/--, !, +, -   (right-assoc)
+unaryExpr
+    : prefixIncDecExpr
+    | (NOT | PLUS | MINUS) unaryExpr
+    | postfixExpr
+    ;
+
+// postfix group: '.' then postfix ++/-- (left-assoc by repetition)
+postfixExpr
+    : postfixBase (DOT ID)* (INC | DEC)*
+    ;
+
+// base atoms
+postfixBase
+    : funcCallExpr
+    | structLiteral
+    | literal
+    | ID
+    | LPAREN expr RPAREN
+    ;
+
+// -------------------------
+// KEY POINT (to satisfy tests):
+// - postfix ++/-- is allowed on member access: p.x++ (spec example)
+// - prefix ++/-- is NOT allowed on member access: ++a.b must error at '.'
+// - but prefix ++/-- must allow parentheses/unary: ++(+a) (test_023)
+// -------------------------
+prefixIncDecExpr
+    : (INC | DEC)+ prefixTarget
+    ;
+
+// prefixTarget: allow parentheses and unary +/-/! nesting, but NO DOT chain
+prefixTarget
+    : ID
+    | LPAREN prefixTarget RPAREN
+    | (PLUS | MINUS) prefixTarget
+    ;
+
+
+funcCallExpr     : ID LPAREN list_expression? RPAREN ;
+literal          : INT_LIT | FLOAT_LIT | STRING_LIT ;
+
+
+
+// =====================
+// --- LEXER ---
+// =====================
+
+// ---- Keywords ----
+AUTO      : 'auto';
+BREAK     : 'break';
+CASE      : 'case';
+CONTINUE  : 'continue';
+DEFAULT   : 'default';
+ELSE      : 'else';
+FLOAT     : 'float';
+FOR       : 'for';
+IF        : 'if';
+INT       : 'int';
+RETURN    : 'return';
+STRING    : 'string';
+STRUCT    : 'struct';
+SWITCH    : 'switch';
+VOID      : 'void';
+WHILE     : 'while';
+
+// =====================
+// Operators (đặt dài trước ngắn)
+// =====================
+EQ        : '==';
+NEQ       : '!=';
+LE        : '<=';
+GE        : '>=';
+
+OR        : '||';
+AND       : '&&';
+
+INC       : '++';
+DEC       : '--';
+
+// ---- SPECIAL: "-." must be ONE token per testcase ----
+// "-." chỉ là 1 token khi sau '.' KHÔNG phải digit và KHÔNG phải e/E
+MINUS_DOT_LIT
+    : '-.' { 
+        la = self._input.LA(1)
+        la != ord('e') and la != ord('E') and (la < ord('0') or la > ord('9'))
+      }?
+    ;
+
+
+PLUS      : '+';
+MINUS     : '-';
+MUL       : '*';
+DIV       : '/';
+MOD       : '%';
+
+LT        : '<';
+GT        : '>';
+
+NOT       : '!';
+
+ASSIGN    : '=';
+
+DOT       : '.';
+
+// ---- Separators ----
+// LBRACK    : '[';
+// RBRACK    : ']';
+LBRACE    : '{';
+RBRACE    : '}';
+LPAREN    : '(';
+RPAREN    : ')';
+SEMI      : ';';
+COMMA     : ',';
+COLON     : ':';
+
+// =====================
+// Literals
+// =====================
+
+// ---- Float literal ----
+FLOAT_LIT
+    :  (
+          DIGIT+ '.' DIGIT* EXP?     // 1. , 1.0 , 12.34 , 12.e3
+        | '.' DIGIT+ EXP?            // .5 , .010e-0
+        // | '.' EXP                    // .e-2
+        | DIGIT+ EXP                 // 10e-3
+      )
+    ;
+
+// ---- Integer literal ----
+INT_LIT
+    :  DIGIT+
+    ;
+
+fragment EXP
+    : [eE] [+-]? DIGIT+
+    ;
+
+fragment DIGIT
+    : [0-9]
+    ;
+
+// ---- String literal OK ----
+STRING_LIT
+    : '"' (STR_CHAR | ESC_SEQ)* '"'
+      { self.text = self.text[1:-1] }
+    ;
+
+// ---- Illegal escape ----
+// ILLEGAL_ESCAPE
+//     : '"' (STR_CHAR | ESC_SEQ)* '\\' ~[bfrnt"\\]
+//       { self.text = self.text[1:] }
+//     ;
+// ILLEGAL_ESCAPE
+//     : '"' (STR_CHAR | ESC_SEQ)* '\\' ~[bfrnt"\\\r\n]
+//       { self.text = self.text[1:] }
+//     ;
+ILLEGAL_ESCAPE
+    : '"' (STR_CHAR | ESC_SEQ)* '\\' ( ~[bfrnt"\\] | '\r' | '\n' )
+      { self.text = self.text[1:] }
+    ;
+
+
+// ---- Unclosed string ----
+UNCLOSE_STRING
+    : '"' (STR_CHAR | ESC_SEQ)* ( '\r'? '\n' | EOF )
+      { self.text = self.text[1:] }
+    ;
+
+fragment STR_CHAR
+    : ~["\\\r\n]
+    ;
+
+fragment ESC_SEQ
+    : '\\' [bfrnt"\\]
+    ;
+
+// =====================
+// Identifiers
+// =====================
+ID
+    : [_a-zA-Z] [_a-zA-Z0-9]*
+    ;
+
+// =====================
+// Comments + WS
+// =====================
+LINE_COMMENT
+    : '//' ~[\r\n]* -> skip
+    ;
+
+BLOCK_COMMENT
+    : '/*' .*? '*/' -> skip
+    ;
+
+WS
+    : [ \t\f\r\n]+ -> skip
+    ;
+
+// =====================
+// ERROR
+// =====================
+ERROR_CHAR
+    : .
+    ;

@@ -387,7 +387,7 @@ class TyCBuilder:
             print(
                 self.colors.yellow("Build directory not found. Running build first...")
             )
-            self.build_grammar()
+        self.build_grammar()
 
         print(self.colors.yellow("Running lexer tests..."))
         lexer_report_dir = self.report_dir / "lexer"
@@ -424,7 +424,7 @@ class TyCBuilder:
             print(
                 self.colors.yellow("Build directory not found. Running build first...")
             )
-            self.build_grammar()
+        self.build_grammar()
 
         print(self.colors.yellow("Running parser tests..."))
         parser_report_dir = self.report_dir / "parser"

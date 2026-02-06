@@ -1,0 +1,21 @@
+.......................F
+=================================== FAILURES ===================================
+___________________________________ test_024 ___________________________________
+
+    def test_024():
+        source = """
+    void main () {
+        return {1+3, "s"++};
+    }
+    """
+        expected = "success"
+>       assert Parser(source).parse() == expected
+E       AssertionError: assert 'Error on line 3 col 20: ++' == 'success'
+E         
+E         - success
+E         + Error on line 3 col 20: ++
+
+test_parser.py:331: AssertionError
+=========================== short test summary info ============================
+FAILED test_parser.py::test_024 - AssertionError: assert 'Error on line 3 col...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!

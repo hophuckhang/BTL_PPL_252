@@ -1,0 +1,995 @@
+===== TEST FAIL =====
+.................................................................................F
+=================================== FAILURES ===================================
+___________________________________ test_082 ___________________________________
+
+    def test_082():
+        source = '.e-2'
+        expected = '.,e,-,2,EOF'
+>       assert Tokenizer(source).get_tokens_as_string() == expected
+E       AssertionError: assert '.e-2,EOF' == '.,e,-,2,EOF'
+E         
+E         - .,e,-,2,EOF
+E         ?  - - -
+E         + .e-2,EOF
+
+test_lexer.py:548: AssertionError
+=========================== short test summary info ============================
+FAILED test_lexer.py::test_082 - AssertionError: assert '.e-2,EOF' == '.,e,-,...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+===== TyC.g4 CONTENT =====
+// grammar TyC;
+
+// @lexer::header {
+// from lexererr import *
+// }
+
+// @lexer::members {
+// def emit(self):
+//     tk = self.type
+//     if tk == self.UNCLOSE_STRING:
+//         result = super().emit()
+//         raise UncloseString(result.text)
+//     elif tk == self.ILLEGAL_ESCAPE:
+//         result = super().emit()
+//         raise IllegalEscape(result.text)
+//     elif tk == self.ERROR_CHAR:
+//         result = super().emit()
+//         raise ErrorToken(result.text)
+//     else:
+//         return super().emit()
+// }
+
+// options{
+//     language=Python3;
+// }
+
+// // =====================
+// // --- PARSER ---
+// // =====================
+// // =====================
+// // --------- PARSER -----
+// // =====================
+
+// // Program = list decls then EOF
+// program
+//     : decl* EOF
+//     ;
+
+// decl
+//     : structDecl
+//     | funcDecl
+//     ;
+
+// // ---------- Struct ----------
+// structDecl
+//     : STRUCT ID LBRACE structMemberDecl* RBRACE SEMI
+//     ;
+
+// structMemberDecl
+//     : typeSpec ID SEMI
+//     ;
+
+// // ---------- Function ----------
+// // Return type có thể thiếu để inference
+// funcDecl
+//     : typedFuncDecl
+//     | inferredFuncDecl
+//     ;
+
+// typedFuncDecl
+//     : returnType ID LPAREN paramList? RPAREN blockStmt
+//     ;
+
+// inferredFuncDecl
+//     : ID LPAREN paramList? RPAREN blockStmt
+//     ;
+
+// returnType
+//     : typeSpec
+//     | VOID
+//     ;
+
+// paramList
+//     : param (COMMA param)*
+//     ;
+
+// param
+//     : typeSpec ID
+//     ;
+
+// // ---------- Statements ----------
+// stmt
+//     : varDeclStmt
+//     | assignStmt
+//     | ifStmt
+//     | whileStmt
+//     | forStmt
+//     | switchStmt
+//     | breakStmt
+//     | continueStmt
+//     | returnStmt
+//     | exprStmt
+//     | blockStmt
+//     ;
+
+// blockStmt
+//     : LBRACE stmt* RBRACE
+//     ;
+
+// varDeclStmt
+//     : AUTO ID (ASSIGN initValue)? SEMI
+//     | typeSpec ID (ASSIGN initValue)? SEMI
+//     ;
+
+// // assignment statement
+// assignStmt
+//     : assignLHS ASSIGN initValue SEMI
+//     ;
+
+// ifStmt
+//     : IF LPAREN expr RPAREN stmt (ELSE stmt)?
+//     ;
+
+// whileStmt
+//     : WHILE LPAREN expr RPAREN stmt
+//     ;
+
+// forStmt
+//     : FOR LPAREN forInit? SEMI expr? SEMI forUpdate? RPAREN stmt
+//     ;
+
+// forInit
+//     : varDeclFor
+//     | assignFor
+//     ;
+
+// varDeclFor
+//     : AUTO ID (ASSIGN initValue)?
+//     | typeSpec ID (ASSIGN initValue)?
+//     ;
+
+// assignFor
+//     : assignLHS ASSIGN initValue
+//     ;
+
+// forUpdate
+//     : assignLHS ASSIGN expr
+//     | unaryUpdate
+//     ;
+
+// unaryUpdate
+//     : INC assignLHS
+//     | DEC assignLHS
+//     | assignLHS INC
+//     | assignLHS DEC
+//     ;
+
+// switchStmt
+//     : SWITCH LPAREN expr RPAREN LBRACE switchClause* RBRACE
+//     ;
+
+// switchClause
+//     : caseClause
+//     | defaultClause
+//     ;
+
+// caseClause
+//     : CASE INT_LIT COLON stmt*
+//     ;
+
+// defaultClause
+//     : DEFAULT COLON stmt*
+//     ;
+
+// breakStmt
+//     : BREAK SEMI
+//     ;
+
+// continueStmt
+//     : CONTINUE SEMI
+//     ;
+
+// // return expr? ;  (cho phép return; hoặc return <expr>;)
+// returnStmt
+//     : RETURN expr? SEMI
+//     ;
+
+// exprStmt
+//     : expr SEMI
+//     ;
+
+// // ---------- Types ----------
+// typeSpec
+//     : INT
+//     | FLOAT
+//     | STRING
+//     | ID            // struct type name
+//     ;
+
+// // initValue dùng cho khai báo/gán: expr hoặc struct literal
+// initValue
+//     : expr
+//     | structLiteral
+//     ;
+
+// // Cho phép { expr, expr, ... } hoặc {}
+// structLiteral
+//     : LBRACE (initValue (COMMA initValue)*)? RBRACE
+//     ;
+
+// // =====================
+// // ----- EXPRESSIONS ----
+// // =====================
+
+// // =====================
+// // ----- EXPRESSIONS ----
+// // =====================
+
+// expr
+//     : assignExpr
+//     ;
+
+// // Assignment: right-associative (theo bảng precedence '=' right)
+// // Cho phép dạng 1 = 2 = 3 theo testcase của bạn
+// assignExpr
+//     : logicalOrExpr (ASSIGN assignExpr)?
+//     ;
+
+// // OR
+// logicalOrExpr
+//     : logicalAndExpr (OR logicalAndExpr)*
+//     ;
+
+// // AND
+// logicalAndExpr
+//     : equalityExpr (AND equalityExpr)*
+//     ;
+
+// // == !=
+// equalityExpr
+//     : relationalExpr ((EQ | NEQ) relationalExpr)*
+//     ;
+
+// // < <= > >=
+// relationalExpr
+//     : additiveExpr ((LT | LE | GT | GE) additiveExpr)*
+//     ;
+
+// // + -
+// additiveExpr
+//     : multiplicativeExpr ((PLUS | MINUS) multiplicativeExpr)*
+//     ;
+
+// // * / %
+// multiplicativeExpr
+//     : unaryExpr ((MUL | DIV | MOD) unaryExpr)*
+//     ;
+
+// // unary: prefix ++/-- (chỉ được trên l-value) có precedence cao hơn ! + - (theo spec)
+// // postfix ++/-- là cao nhất (theo spec)
+// unaryExpr
+//     : postfixExpr
+//     | prefixIncDecExpr
+//     | (NOT | PLUS | MINUS) unaryExpr
+//     | primaryExpr
+//     ;
+
+
+// // Target cho prefix ++/--
+// // Cho phép ++(+a) (test_023) và ++a, ++a.b
+// // Nhưng KHÔNG cho ++!a vì '!' không bắt đầu được incDecTarget
+// incDecTarget
+//     : assignLHS
+//     | LPAREN expr RPAREN
+//     ;
+
+// // prefix chain: ++--++target và có thể kèm postfix chain sau target (để pass test_022)
+// prefixIncDecExpr
+//     : (INC | DEC)+ incDecTarget (INC | DEC)*
+//     ;
+
+// // postfix chain: a++--++-- (test_022)
+// // Postfix ++/-- áp dụng cho mọi primary (để "s"++ và (a+b)++ parse được nếu test yêu cầu)
+// postfixExpr
+//     : primaryExpr (INC | DEC)+
+//     ;
+
+
+
+// // LHS hợp lệ cho assignment-stmt và ++/--
+// assignLHS
+//     : ID
+//     | memberAccessExpr
+//     ;
+
+// // ---------- Primary ----------
+// // - function call CHỈ được phép trên ID: foo(...)
+// // - member access: a.b.c (không được theo sau bởi (...))
+// // => a.foo() sẽ lỗi tại '(' như testcase bạn nói trước đó
+// primaryExpr
+//     : funcCallExpr
+//     | memberAccessExpr
+//     | primaryNoDot
+//     ;
+
+// funcCallExpr
+//     : ID LPAREN argList? RPAREN
+//     ;
+
+// memberAccessExpr
+//     : ID (DOT ID)+
+//     ;
+
+// primaryNoDot
+//     : ID
+//     | literal
+//     | structLiteral
+//     | LPAREN expr RPAREN
+//     ;
+
+// argList
+//     : expr (COMMA expr)*
+//     ;
+
+// literal
+//     : INT_LIT
+//     | FLOAT_LIT
+//     | STRING_LIT
+//     ;
+
+
+
+
+
+// // =====================
+// // --- LEXER ---
+// // =====================
+
+// // ---- Keywords ----
+// AUTO      : 'auto';
+// BREAK     : 'break';
+// CASE      : 'case';
+// CONTINUE  : 'continue';
+// DEFAULT   : 'default';
+// ELSE      : 'else';
+// FLOAT     : 'float';
+// FOR       : 'for';
+// IF        : 'if';
+// INT       : 'int';
+// RETURN    : 'return';
+// STRING    : 'string';
+// STRUCT    : 'struct';
+// SWITCH    : 'switch';
+// VOID      : 'void';
+// WHILE     : 'while';
+
+
+// // =====================
+// // Operators (đặt dài trước ngắn)
+// // =====================
+// EQ        : '==';
+// NEQ       : '!=';
+// LE        : '<=';
+// GE        : '>=';
+
+// OR        : '||';
+// AND       : '&&';
+
+// INC       : '++';
+// DEC       : '--';
+
+// // ---- SPECIAL: "-." must be ONE token per testcase ----
+// // Only match "-." when the next char is NOT a digit and NOT e/E
+// MINUS_DOT_LIT : '-.' ;
+
+// PLUS      : '+';
+// MINUS     : '-';
+// MUL       : '*';
+// DIV       : '/';
+// MOD       : '%';
+
+// LT        : '<';
+// GT        : '>';
+
+// NOT       : '!';
+
+// ASSIGN    : '=';
+
+// DOT       : '.';
+
+
+// // ---- Separators ----
+// LBRACK    : '[';
+// RBRACK    : ']';
+// LBRACE    : '{';
+// RBRACE    : '}';
+// LPAREN    : '(';
+// RPAREN    : ')';
+// SEMI      : ';';
+// COMMA     : ',';
+// COLON     : ':';
+
+
+// // =====================
+// // Literals
+// // =====================
+
+// // ---- Float literal ----
+// // Pass các dạng:
+// // 0.0  3.14  -2.5  1.23e4  5.67E-2  1.  .5  .010e-0  .e-2  10e-3
+// FLOAT_LIT
+//     : '-'? (
+//           DIGIT+ '.' DIGIT* EXP?     // 1. , 1.0 , 12.34 , 12.e3
+//         | '.' DIGIT+ EXP?            // .5 , .010e-0
+//         | '.' EXP                    // .e-2
+//         | DIGIT+ EXP                 // 10e-3
+//       )
+//     ;
+
+// // ---- Integer literal ----
+// INT_LIT
+//     : '-'? DIGIT+
+//     ;
+
+// fragment EXP
+//     : [eE] [+-]? DIGIT+
+//     ;
+
+// fragment DIGIT
+//     : [0-9]
+//     ;
+
+
+// // ---- String literal OK ----
+// // Strip 2 dấu " để output token là nội dung bên trong (pass test_008)
+// STRING_LIT
+//     : '"' (STR_CHAR | ESC_SEQ)* '"'
+//       { self.text = self.text[1:-1] }
+//     ;
+
+// // ---- Illegal escape ----
+// // Strip dấu " đầu để message đúng (pass test_010) mà không cần sửa lexererr.py
+// ILLEGAL_ESCAPE
+//     : '"' (STR_CHAR | ESC_SEQ)* '\\' ~[bfrnt"\\]
+//       { self.text = self.text[1:] }
+//     ;
+
+// // ---- Unclosed string ----
+// // Strip dấu " đầu, GIỮ newline nếu có (pass test_009)
+// UNCLOSE_STRING
+//     : '"' (STR_CHAR | ESC_SEQ)* ( '\r'? '\n' | EOF )
+//       { self.text = self.text[1:] }
+//     ;
+
+// fragment STR_CHAR
+//     : ~["\\\r\n]
+//     ;
+
+// fragment ESC_SEQ
+//     : '\\' [bfrnt"\\]
+//     ;
+
+
+// // =====================
+// // Identifiers
+// // =====================
+// ID
+//     : [_a-zA-Z] [_a-zA-Z0-9]*
+//     ;
+
+
+// // =====================
+// // Comments + WS
+// // =====================
+// LINE_COMMENT
+//     : '//' ~[\r\n]* -> skip
+//     ;
+
+// BLOCK_COMMENT
+//     : '/*' .*? '*/' -> skip
+//     ;
+
+// WS
+//     : [ \t\f\r\n]+ -> skip
+//     ;
+
+
+// // =====================
+// // ERROR
+// // =====================
+// ERROR_CHAR
+//     : .
+//     ;
+grammar TyC;
+
+@lexer::header {
+from lexererr import *
+}
+
+@lexer::members {
+def emit(self):
+    tk = self.type
+    if tk == self.UNCLOSE_STRING:
+        result = super().emit()
+        raise UncloseString(result.text)
+    elif tk == self.ILLEGAL_ESCAPE:
+        result = super().emit()
+        raise IllegalEscape(result.text)
+    elif tk == self.ERROR_CHAR:
+        result = super().emit()
+        raise ErrorToken(result.text)
+    else:
+        return super().emit()
+}
+
+options{
+    language=Python3;
+}
+
+// =====================
+// --- PARSER ---
+// =====================
+
+// Program = list decls then EOF
+program
+    : decl* EOF
+    ;
+
+decl
+    : structDecl
+    | funcDecl
+    ;
+
+// ---------- Struct ----------
+structDecl
+    : STRUCT ID LBRACE structMemberDecl* RBRACE SEMI
+    ;
+
+structMemberDecl
+    : typeSpec ID SEMI
+    ;
+
+// ---------- Function ----------
+// Return type có thể thiếu để inference
+funcDecl
+    : typedFuncDecl
+    | inferredFuncDecl
+    ;
+
+typedFuncDecl
+    : returnType ID LPAREN paramList? RPAREN blockStmt
+    ;
+
+inferredFuncDecl
+    : ID LPAREN paramList? RPAREN blockStmt
+    ;
+
+// returnType
+//     : typeSpec
+//     | VOID
+//     ;
+returnType
+    : typeSpec
+    | VOID
+    | AUTO
+    ;
+
+
+paramList
+    : param (COMMA param)*
+    ;
+
+param
+    : typeSpec ID
+    ;
+
+// ---------- Statements ----------
+stmt
+    : varDeclStmt
+    | assignStmt
+    | ifStmt
+    | whileStmt
+    | forStmt
+    | switchStmt
+    | breakStmt
+    | continueStmt
+    | returnStmt
+    | exprStmt
+    | blockStmt
+    ;
+
+blockStmt
+    : LBRACE stmt* RBRACE
+    ;
+
+varDeclStmt
+    : AUTO ID (ASSIGN initValue)? SEMI
+    | typeSpec ID (ASSIGN initValue)? SEMI
+    ;
+
+// assignment statement (LHS bị giới hạn)
+assignStmt
+    : assignLHS ASSIGN initValue SEMI
+    ;
+
+ifStmt
+    : IF LPAREN expr RPAREN stmt (ELSE stmt)?
+    ;
+
+whileStmt
+    : WHILE LPAREN expr RPAREN stmt
+    ;
+
+// forStmt
+//     : FOR LPAREN forInit? SEMI expr? SEMI forUpdate? RPAREN stmt
+//     ;
+forStmt
+    : FOR LPAREN forInit? SEMI expr? SEMI (forUpdate)? RPAREN stmt
+    ;
+
+forInit
+    : varDeclFor
+    | assignFor
+    ;
+
+varDeclFor
+    : AUTO ID (ASSIGN initValue)?
+    | typeSpec ID (ASSIGN initValue)?
+    ;
+
+assignFor
+    : assignLHS ASSIGN initValue
+    ;
+
+// forUpdate
+//     : assignLHS ASSIGN expr
+//     | unaryUpdate
+//     ;
+forUpdate
+    // allow optional unary +/-
+    // but ONLY for assignment update, so "-a" will get stuck expecting '=' at ')'
+    : (PLUS | MINUS)? assignLHS ASSIGN expr
+    | INC assignLHS
+    | DEC assignLHS
+    | assignLHS INC
+    | assignLHS DEC
+    ;
+
+
+// unaryUpdate
+//     : INC assignLHS
+//     | DEC assignLHS
+//     | assignLHS INC
+//     | assignLHS DEC
+//     ;
+
+// switchStmt
+//     : SWITCH LPAREN expr RPAREN LBRACE switchClause* RBRACE
+//     ;
+switchStmt
+    : SWITCH LPAREN expr RPAREN LBRACE caseClause* defaultClause? RBRACE
+    ;
+
+
+switchClause
+    : caseClause
+    | defaultClause
+    ;
+
+// caseClause
+//     : CASE INT_LIT COLON stmt*
+//     ;
+caseClause
+    : CASE expr COLON stmt*
+    ;
+
+defaultClause
+    : DEFAULT COLON stmt*
+    ;
+
+breakStmt
+    : BREAK SEMI
+    ;
+
+continueStmt
+    : CONTINUE SEMI
+    ;
+
+// return expr? ;
+returnStmt
+    : RETURN expr? SEMI
+    ;
+
+exprStmt
+    : expr SEMI
+    ;
+
+// ---------- Types ----------
+typeSpec
+    : INT
+    | FLOAT
+    | STRING
+    | ID            // struct type name
+    ;
+
+// initValue dùng cho khai báo/gán: expr hoặc struct literal
+initValue
+    : expr
+    | structLiteral
+    ;
+
+// Cho phép { expr, expr, ... } hoặc {}
+structLiteral
+    : LBRACE (initValue (COMMA initValue)*)? RBRACE
+    ;
+
+// =====================
+// ----- EXPRESSIONS ----
+// =====================
+
+expr
+    : assignExpr
+    ;
+
+// assignment expression: right-associative
+// Cho phép 1 = 2 = 3 theo testcase
+assignExpr
+    : logicalOrExpr (ASSIGN assignExpr)?
+    ;
+
+// LHS hợp lệ cho assignment statement + prefix ++/-- target (member access OK)
+assignLHS
+    : ID (DOT ID)*
+    ;
+
+// OR
+logicalOrExpr
+    : logicalAndExpr (OR logicalAndExpr)*
+    ;
+
+// AND
+logicalAndExpr
+    : equalityExpr (AND equalityExpr)*
+    ;
+
+// == !=
+equalityExpr
+    : relationalExpr ((EQ | NEQ) relationalExpr)*
+    ;
+
+// < <= > >=
+relationalExpr
+    : additiveExpr ((LT | LE | GT | GE) additiveExpr)*
+    ;
+
+// + -
+additiveExpr
+    : multiplicativeExpr ((PLUS | MINUS) multiplicativeExpr)*
+    ;
+
+// * / %
+multiplicativeExpr
+    : unaryExpr ((MUL | DIV | MOD) unaryExpr)*
+    ;
+
+// unary: prefix ++/-- cho phép chuỗi, target là LHS hoặc (expr)
+// và có thể kèm postfix ++/-- ngay sau target (để pass test_022)
+unaryExpr
+    : prefixIncDecExpr
+    | (NOT | PLUS | MINUS) unaryExpr
+    | primaryExpr
+    ;
+
+incDecTarget
+    : assignLHS
+    | atom 
+    ;
+
+// Ví dụ hợp lệ theo test: ++--++a, !++a, ++(+a), ++--++--a++--++--
+prefixIncDecExpr
+    : (INC | DEC)+ incDecTarget (INC | DEC)*
+    ;
+
+// ---------- Primary / Postfix / Member-access ----------
+// Atom: call chỉ được phép trên ID: foo(...)
+atom
+    : funcCallExpr
+    | ID
+    | literal
+    | structLiteral
+    | LPAREN expr RPAREN
+    ;
+
+funcCallExpr
+    : ID LPAREN argList? RPAREN
+    ;
+
+// Postfix core: atom có thể nối .field.field...
+// => cho phép foo().a.b
+postfixCore
+    : atom (DOT ID)*
+    ;
+
+// Postfix ++/--: chỉ cho phép trên atom (KHÔNG cho trên member access)
+// => "s"++ OK
+// => a++--++-- OK
+// => a.b++ sẽ lỗi tại ++ (đúng test_029)
+postfixExpr
+    : atom (INC | DEC)+
+    ;
+
+// primaryExpr: ưu tiên postfix ++/-- trước, rồi mới member-access chain
+primaryExpr
+    : postfixExpr
+    | postfixCore
+    ;
+
+argList
+    : expr (COMMA expr)*
+    ;
+
+literal
+    : INT_LIT
+    | FLOAT_LIT
+    | STRING_LIT
+    ;
+
+// =====================
+// --- LEXER ---
+// =====================
+
+// ---- Keywords ----
+AUTO      : 'auto';
+BREAK     : 'break';
+CASE      : 'case';
+CONTINUE  : 'continue';
+DEFAULT   : 'default';
+ELSE      : 'else';
+FLOAT     : 'float';
+FOR       : 'for';
+IF        : 'if';
+INT       : 'int';
+RETURN    : 'return';
+STRING    : 'string';
+STRUCT    : 'struct';
+SWITCH    : 'switch';
+VOID      : 'void';
+WHILE     : 'while';
+
+// =====================
+// Operators (đặt dài trước ngắn)
+// =====================
+EQ        : '==';
+NEQ       : '!=';
+LE        : '<=';
+GE        : '>=';
+
+OR        : '||';
+AND       : '&&';
+
+INC       : '++';
+DEC       : '--';
+
+// ---- SPECIAL: "-." must be ONE token per testcase ----
+// "-." chỉ là 1 token khi sau '.' KHÔNG phải digit và KHÔNG phải e/E
+MINUS_DOT_LIT
+    : '-.' { 
+        la = self._input.LA(1)
+        la != ord('e') and la != ord('E') and (la < ord('0') or la > ord('9'))
+      }?
+    ;
+
+
+PLUS      : '+';
+MINUS     : '-';
+MUL       : '*';
+DIV       : '/';
+MOD       : '%';
+
+LT        : '<';
+GT        : '>';
+
+NOT       : '!';
+
+ASSIGN    : '=';
+
+DOT       : '.';
+
+// ---- Separators ----
+LBRACK    : '[';
+RBRACK    : ']';
+LBRACE    : '{';
+RBRACE    : '}';
+LPAREN    : '(';
+RPAREN    : ')';
+SEMI      : ';';
+COMMA     : ',';
+COLON     : ':';
+
+// =====================
+// Literals
+// =====================
+
+// ---- Float literal ----
+FLOAT_LIT
+    :  (
+          DIGIT+ '.' DIGIT* EXP?     // 1. , 1.0 , 12.34 , 12.e3
+        | '.' DIGIT+ EXP?            // .5 , .010e-0
+        | '.' EXP                    // .e-2
+        | DIGIT+ EXP                 // 10e-3
+      )
+    ;
+
+// ---- Integer literal ----
+INT_LIT
+    :  DIGIT+
+    ;
+
+fragment EXP
+    : [eE] [+-]? DIGIT+
+    ;
+
+fragment DIGIT
+    : [0-9]
+    ;
+
+// ---- String literal OK ----
+STRING_LIT
+    : '"' (STR_CHAR | ESC_SEQ)* '"'
+      { self.text = self.text[1:-1] }
+    ;
+
+// ---- Illegal escape ----
+// ILLEGAL_ESCAPE
+//     : '"' (STR_CHAR | ESC_SEQ)* '\\' ~[bfrnt"\\]
+//       { self.text = self.text[1:] }
+//     ;
+ILLEGAL_ESCAPE
+    : '"' (STR_CHAR | ESC_SEQ)* '\\' ~[bfrnt"\\\r\n]
+      { self.text = self.text[1:] }
+    ;
+
+// ---- Unclosed string ----
+UNCLOSE_STRING
+    : '"' (STR_CHAR | ESC_SEQ)* ( '\r'? '\n' | EOF )
+      { self.text = self.text[1:] }
+    ;
+
+fragment STR_CHAR
+    : ~["\\\r\n]
+    ;
+
+fragment ESC_SEQ
+    : '\\' [bfrnt"\\]
+    ;
+
+// =====================
+// Identifiers
+// =====================
+ID
+    : [_a-zA-Z] [_a-zA-Z0-9]*
+    ;
+
+// =====================
+// Comments + WS
+// =====================
+LINE_COMMENT
+    : '//' ~[\r\n]* -> skip
+    ;
+
+BLOCK_COMMENT
+    : '/*' .*? '*/' -> skip
+    ;
+
+WS
+    : [ \t\f\r\n]+ -> skip
+    ;
+
+// =====================
+// ERROR
+// =====================
+ERROR_CHAR
+    : .
+    ;

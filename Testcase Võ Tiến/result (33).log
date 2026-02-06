@@ -1,0 +1,21 @@
+...................................................................F
+=================================== FAILURES ===================================
+___________________________________ test_068 ___________________________________
+
+    def test_068():
+        source = """
+    auto main (int a, int b) {return;}
+    void main3 () {}
+    ID main2 (int a) {return;}
+    """
+        expected = "success"
+>       assert Parser(source).parse() == expected
+E       AssertionError: assert 'Error on line 2 col 0: auto' == 'success'
+E         
+E         - success
+E         + Error on line 2 col 0: auto
+
+test_parser.py:818: AssertionError
+=========================== short test summary info ============================
+FAILED test_parser.py::test_068 - AssertionError: assert 'Error on line 2 col...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!

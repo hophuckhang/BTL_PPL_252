@@ -1,0 +1,18 @@
+.................................................................................F
+=================================== FAILURES ===================================
+___________________________________ test_082 ___________________________________
+
+    def test_082():
+        source = '.e-2 -. .010e-0.5'
+        expected = '.e-2,-.,.010e-0,.5,EOF'
+>       assert Tokenizer(source).get_tokens_as_string() == expected
+E       AssertionError: assert '.e-2,-,.,.010e-0,.5,EOF' == '.e-2,-.,.010e-0,.5,EOF'
+E         
+E         - .e-2,-.,.010e-0,.5,EOF
+E         + .e-2,-,.,.010e-0,.5,EOF
+E         ?       +
+
+test_lexer.py:548: AssertionError
+=========================== short test summary info ============================
+FAILED test_lexer.py::test_082 - AssertionError: assert '.e-2,-,.,.010e-0,.5,...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!

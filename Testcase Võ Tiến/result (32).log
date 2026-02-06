@@ -1,0 +1,26 @@
+..................................................................F
+=================================== FAILURES ===================================
+___________________________________ test_067 ___________________________________
+
+    def test_067():
+        source = """
+    void main () {
+        switch (1 *3 / 4) {
+            default:
+                1;
+            case 2:
+                 2;
+        }
+    }
+    """
+        expected = "Error on line 6 col 8: case"
+>       assert Parser(source).parse() == expected
+E       AssertionError: assert 'success' == 'Error on line 6 col 8: case'
+E         
+E         - Error on line 6 col 8: case
+E         + success
+
+test_parser.py:809: AssertionError
+=========================== short test summary info ============================
+FAILED test_parser.py::test_067 - AssertionError: assert 'success' == 'Error ...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
