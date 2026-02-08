@@ -67,482 +67,362 @@ def test_complex_expression():
     tokenizer = Tokenizer("auto x = 5 + 3 * 2;")
     assert tokenizer.get_tokens_as_string() == "auto,x,=,5,+,3,*,2,;,<EOF>"
 
-    # ========== Keywords (Tests 11-25) ==========
-
-def test_keyword_break():
-    """11. Keyword: break"""
+def test_11():
     tokenizer = Tokenizer("break")
     assert tokenizer.get_tokens_as_string() == "break,<EOF>"
 
-def test_keyword_case():
-    """12. Keyword: case"""
+def test_12():
     tokenizer = Tokenizer("case")
     assert tokenizer.get_tokens_as_string() == "case,<EOF>"
 
-def test_keyword_continue():
-    """13. Keyword: continue"""
+def test_13():
     tokenizer = Tokenizer("continue")
     assert tokenizer.get_tokens_as_string() == "continue,<EOF>"
 
-def test_keyword_default():
-    """14. Keyword: default"""
+def test_14():
     tokenizer = Tokenizer("default")
     assert tokenizer.get_tokens_as_string() == "default,<EOF>"
 
-def test_keyword_else():
-    """15. Keyword: else"""
+def test_15():
     tokenizer = Tokenizer("else")
     assert tokenizer.get_tokens_as_string() == "else,<EOF>"
 
-def test_keyword_float():
-    """16. Keyword: float"""
+def test_16():
     tokenizer = Tokenizer("float")
     assert tokenizer.get_tokens_as_string() == "float,<EOF>"
 
-def test_keyword_for():
-    """17. Keyword: for"""
+def test_17():
     tokenizer = Tokenizer("for")
     assert tokenizer.get_tokens_as_string() == "for,<EOF>"
 
-def test_keyword_if():
-    """18. Keyword: if"""
+def test_18():
     tokenizer = Tokenizer("if")
     assert tokenizer.get_tokens_as_string() == "if,<EOF>"
 
-def test_keyword_int():
-    """19. Keyword: int"""
+def test_19():
     tokenizer = Tokenizer("int")
     assert tokenizer.get_tokens_as_string() == "int,<EOF>"
 
-def test_keyword_return():
-    """20. Keyword: return"""
+def test_20():
     tokenizer = Tokenizer("return")
     assert tokenizer.get_tokens_as_string() == "return,<EOF>"
 
-def test_keyword_string():
-    """21. Keyword: string"""
+def test_21():
     tokenizer = Tokenizer("string")
     assert tokenizer.get_tokens_as_string() == "string,<EOF>"
 
-def test_keyword_struct():
-    """22. Keyword: struct"""
+def test_22():
     tokenizer = Tokenizer("struct")
     assert tokenizer.get_tokens_as_string() == "struct,<EOF>"
 
-def test_keyword_switch():
-    """23. Keyword: switch"""
+def test_23():
     tokenizer = Tokenizer("switch")
     assert tokenizer.get_tokens_as_string() == "switch,<EOF>"
 
-def test_keyword_void():
-    """24. Keyword: void"""
+def test_24():
     tokenizer = Tokenizer("void")
     assert tokenizer.get_tokens_as_string() == "void,<EOF>"
 
-def test_keyword_while():
-    """25. Keyword: while"""
+def test_25():
     tokenizer = Tokenizer("while")
     assert tokenizer.get_tokens_as_string() == "while,<EOF>"
 
-
-# ========== Operators (Tests 26-42) ==========
-
-def test_operator_minus():
-    """26. Operator: -"""
+def test_26():
     tokenizer = Tokenizer("-")
     assert tokenizer.get_tokens_as_string() == "-,<EOF>"
 
-def test_operator_multiply():
-    """27. Operator: *"""
+def test_27():
     tokenizer = Tokenizer("*")
     assert tokenizer.get_tokens_as_string() == "*,<EOF>"
 
-def test_operator_divide():
-    """28. Operator: /"""
+def test_28():
     tokenizer = Tokenizer("/")
     assert tokenizer.get_tokens_as_string() == "/,<EOF>"
 
-def test_operator_modulus():
-    """29. Operator: %"""
+def test_29():
     tokenizer = Tokenizer("%")
     assert tokenizer.get_tokens_as_string() == "%,<EOF>"
 
-def test_operator_equal_check():
-    """30. Operator: =="""
+def test_30():
     tokenizer = Tokenizer("==")
     assert tokenizer.get_tokens_as_string() == "==,<EOF>"
 
-def test_operator_not_equal():
-    """31. Operator: !="""
+def test_31():
     tokenizer = Tokenizer("!=")
     assert tokenizer.get_tokens_as_string() == "!=,<EOF>"
 
-def test_operator_less_than():
-    """32. Operator: <"""
+def test_32():
     tokenizer = Tokenizer("<")
     assert tokenizer.get_tokens_as_string() == "<,<EOF>"
 
-def test_operator_greater_than():
-    """33. Operator: >"""
+def test_33():
     tokenizer = Tokenizer(">")
     assert tokenizer.get_tokens_as_string() == ">,<EOF>"
 
-def test_operator_less_equal():
-    """34. Operator: <="""
+def test_34():
     tokenizer = Tokenizer("<=")
     assert tokenizer.get_tokens_as_string() == "<=,<EOF>"
 
-def test_operator_greater_equal():
-    """35. Operator: >="""
+def test_35():
     tokenizer = Tokenizer(">=")
     assert tokenizer.get_tokens_as_string() == ">=,<EOF>"
 
-def test_operator_logical_or():
-    """36. Operator: ||"""
+def test_36():
     tokenizer = Tokenizer("||")
     assert tokenizer.get_tokens_as_string() == "||,<EOF>"
 
-def test_operator_logical_and():
-    """37. Operator: &&"""
+def test_37():
     tokenizer = Tokenizer("&&")
     assert tokenizer.get_tokens_as_string() == "&&,<EOF>"
 
-def test_operator_logical_not():
-    """38. Operator: !"""
+def test_38():
     tokenizer = Tokenizer("!")
     assert tokenizer.get_tokens_as_string() == "!,<EOF>"
 
-def test_operator_increment():
-    """39. Operator: ++"""
+def test_39():
     tokenizer = Tokenizer("++")
     assert tokenizer.get_tokens_as_string() == "++,<EOF>"
 
-def test_operator_decrement():
-    """40. Operator: --"""
+def test_40():
     tokenizer = Tokenizer("--")
     assert tokenizer.get_tokens_as_string() == "--,<EOF>"
 
-def test_operator_member_access():
-    """41. Operator: ."""
+def test_41():
     tokenizer = Tokenizer(".")
     assert tokenizer.get_tokens_as_string() == ".,<EOF>"
 
-def test_operator_plus():
-    """42. Operator: +"""
+def test_42():
     tokenizer = Tokenizer("+")
     assert tokenizer.get_tokens_as_string() == "+,<EOF>"
 
-
-# ========== Separators (Tests 43-49) ==========
-
-def test_separator_lbrace():
-    """43. Separator: {"""
+def test_43():
     tokenizer = Tokenizer("{")
     assert tokenizer.get_tokens_as_string() == "{,<EOF>"
 
-def test_separator_rbrace():
-    """44. Separator: }"""
+def test_44():
     tokenizer = Tokenizer("}")
     assert tokenizer.get_tokens_as_string() == "},<EOF>"
 
-def test_separator_lparen():
-    """45. Separator: ("""
+def test_45():
     tokenizer = Tokenizer("(")
     assert tokenizer.get_tokens_as_string() == "(,<EOF>"
 
-def test_separator_rparen():
-    """46. Separator: )"""
+def test_46():
     tokenizer = Tokenizer(")")
     assert tokenizer.get_tokens_as_string() == "),<EOF>"
 
-def test_separator_comma():
-    """47. Separator: ,"""
+def test_47():
     tokenizer = Tokenizer(",")
     assert tokenizer.get_tokens_as_string() == ",,<EOF>"
 
-def test_separator_colon():
-    """48. Separator: :"""
+def test_48():
     tokenizer = Tokenizer(":")
     assert tokenizer.get_tokens_as_string() == ":,<EOF>"
 
-def test_all_separators():
-    """49. All separators sequence"""
+def test_49():
     tokenizer = Tokenizer("{}(),:;")
     assert tokenizer.get_tokens_as_string() == "{,},(,),,,:,;,<EOF>"
 
-
-# ========== Identifiers (Tests 50-55) ==========
-
-def test_identifier_underscore_start():
-    """50. Identifier starting with underscore"""
+def test_50():
     tokenizer = Tokenizer("_var")
     assert tokenizer.get_tokens_as_string() == "_var,<EOF>"
 
-def test_identifier_underscore_end():
-    """51. Identifier ending with underscore"""
+def test_51():
     tokenizer = Tokenizer("var_")
     assert tokenizer.get_tokens_as_string() == "var_,<EOF>"
 
-def test_identifier_mixed_case():
-    """52. Identifier mixed case"""
+def test_52():
     tokenizer = Tokenizer("MyVar")
     assert tokenizer.get_tokens_as_string() == "MyVar,<EOF>"
 
-def test_identifier_with_digits():
-    """53. Identifier with digits"""
+def test_53():
     tokenizer = Tokenizer("var123")
     assert tokenizer.get_tokens_as_string() == "var123,<EOF>"
 
-def test_identifier_all_caps():
-    """54. Identifier all caps"""
+def test_54():
     tokenizer = Tokenizer("MAX_VALUE")
     assert tokenizer.get_tokens_as_string() == "MAX_VALUE,<EOF>"
 
-def test_identifier_keywords_prefix():
-    """55. Identifiers that look like keywords but aren't"""
+def test_55():
     tokenizer = Tokenizer("autoclass break_point")
     assert tokenizer.get_tokens_as_string() == "autoclass,break_point,<EOF>"
 
-
-# ========== Integer Literals (Tests 56-60) ==========
-
-def test_integer_zero():
-    """56. Integer: 0"""
+def test_56():
     tokenizer = Tokenizer("0")
     assert tokenizer.get_tokens_as_string() == "0,<EOF>"
 
-def test_integer_large():
-    """57. Integer: large number"""
+def test_57():
     tokenizer = Tokenizer("2500")
     assert tokenizer.get_tokens_as_string() == "2500,<EOF>"
 
-def test_integer_multiple():
-    """58. Multiple integers separated by space"""
+def test_58():
     tokenizer = Tokenizer("10 20 30")
     assert tokenizer.get_tokens_as_string() == "10,20,30,<EOF>"
 
-def test_integer_max_byte():
-    """59. Integer: 255"""
+def test_59():
     tokenizer = Tokenizer("255")
     assert tokenizer.get_tokens_as_string() == "255,<EOF>"
 
-def test_integer_sequence():
-    """60. Integers without space (logic check)"""
-    # Note: 123456 is one token
+def test_60():
     tokenizer = Tokenizer("123456")
     assert tokenizer.get_tokens_as_string() == "123456,<EOF>"
 
-
-# ========== Float Literals (Tests 61-70) ==========
-
-def test_float_zero_dot_zero():
-    """61. Float: 0.0"""
+def test_61():
     tokenizer = Tokenizer("0.0")
     assert tokenizer.get_tokens_as_string() == "0.0,<EOF>"
 
-def test_float_scientific():
-    """62. Float: 1.23e4"""
+def test_62():
     tokenizer = Tokenizer("1.23e4")
     assert tokenizer.get_tokens_as_string() == "1.23e4,<EOF>"
 
-def test_float_scientific_negative_exponent():
-    """63. Float: 5.67E-2"""
+def test_63():
     tokenizer = Tokenizer("5.67E-2")
     assert tokenizer.get_tokens_as_string() == "5.67E-2,<EOF>"
 
-def test_float_dot_at_end():
-    """64. Float: 1."""
+def test_64():
     tokenizer = Tokenizer("1.")
     assert tokenizer.get_tokens_as_string() == "1.,<EOF>"
 
-def test_float_dot_at_start():
-    """65. Float: .5"""
+def test_65():
     tokenizer = Tokenizer(".5")
     assert tokenizer.get_tokens_as_string() == ".5,<EOF>"
 
-def test_float_scientific_no_dot():
-    """66. Float: 1e4"""
+def test_66():
     tokenizer = Tokenizer("1e4")
     assert tokenizer.get_tokens_as_string() == "1e4,<EOF>"
 
-def test_float_scientific_uppercase():
-    """67. Float: 2E-3"""
+def test_67():
     tokenizer = Tokenizer("2E-3")
     assert tokenizer.get_tokens_as_string() == "2E-3,<EOF>"
 
-def test_float_scientific_plus_sign():
-    """68. Float: 1.5e+2"""
+def test_68():
     tokenizer = Tokenizer("1.5e+2")
     assert tokenizer.get_tokens_as_string() == "1.5e+2,<EOF>"
 
-def test_float_zero_dot():
-    """69. Float: 0."""
+def test_69():
     tokenizer = Tokenizer("0.")
     assert tokenizer.get_tokens_as_string() == "0.,<EOF>"
 
-def test_float_complex_scientific():
-    """70. Float: .5E10"""
+def test_70():
     tokenizer = Tokenizer(".5E10")
     assert tokenizer.get_tokens_as_string() == ".5E10,<EOF>"
 
-
-# ========== String Literals (Tests 71-80) ==========
-# Note: Spec says lexer strips double quotes from recognized string literals.
-
-def test_string_empty():
-    """71. String: empty"""
+def test_71():
     tokenizer = Tokenizer('""')
     assert tokenizer.get_tokens_as_string() == ",<EOF>"
 
-def test_string_space():
-    """72. String: single space"""
+def test_72():
     tokenizer = Tokenizer('" "')
     assert tokenizer.get_tokens_as_string() == " ,<EOF>"
 
-def test_string_with_escaped_quote():
-    """73. String: escaped quote"""
-    # Input: "quote\"here" -> Content: quote\"here
+def test_73():
     tokenizer = Tokenizer('"quote\\"here"')
     assert tokenizer.get_tokens_as_string() == 'quote\\"here,<EOF>'
 
-def test_string_with_newline_escape():
-    """74. String: escaped newline"""
-    # Input: "line\n" (literal \n)
+def test_74():
     tokenizer = Tokenizer('"line\\n"')
     assert tokenizer.get_tokens_as_string() == "line\\n,<EOF>"
 
-def test_string_with_tab_escape():
-    """75. String: escaped tab"""
+def test_75():
     tokenizer = Tokenizer('"tab\\t"')
     assert tokenizer.get_tokens_as_string() == "tab\\t,<EOF>"
 
-def test_string_with_backspace_escape():
-    """76. String: escaped backspace"""
+def test_76():
     tokenizer = Tokenizer('"back\\b"')
     assert tokenizer.get_tokens_as_string() == "back\\b,<EOF>"
 
-def test_string_with_backslash_escape():
-    """77. String: escaped backslash"""
+def test_77():
     tokenizer = Tokenizer('"path\\\\"')
     assert tokenizer.get_tokens_as_string() == "path\\\\,<EOF>"
 
-def test_string_multiple():
-    """78. Multiple strings"""
+def test_78():
     tokenizer = Tokenizer('"abc" "def"')
     assert tokenizer.get_tokens_as_string() == "abc,def,<EOF>"
 
-def test_string_mixed_content():
-    """79. String with alphanumeric and symbols"""
+def test_79():
     tokenizer = Tokenizer('"a-b_c 123"')
     assert tokenizer.get_tokens_as_string() == "a-b_c 123,<EOF>"
 
-def test_string_with_formfeed():
-    """80. String with formfeed escape"""
+def test_80():
     tokenizer = Tokenizer('"page\\f"')
     assert tokenizer.get_tokens_as_string() == "page\\f,<EOF>"
 
-
-# ========== Comments (Tests 81-85) ==========
-
-def test_block_comment_simple():
-    """81. Block comment on one line"""
+def test_81():
     tokenizer = Tokenizer("/* comment */")
     assert tokenizer.get_tokens_as_string() == "<EOF>"
 
-def test_block_comment_multiline():
-    """82. Block comment spanning lines"""
+def test_82():
     tokenizer = Tokenizer("/* line 1 \n line 2 */")
     assert tokenizer.get_tokens_as_string() == "<EOF>"
 
-def test_comment_mixed_block_ignores_line():
-    """83. Block comment ignores line comment syntax"""
+def test_83():
     tokenizer = Tokenizer("/* // ignored */")
     assert tokenizer.get_tokens_as_string() == "<EOF>"
 
-def test_comment_line_ignores_block():
-    """84. Line comment ignores block start"""
+def test_84():
     tokenizer = Tokenizer("// /* ignored")
     assert tokenizer.get_tokens_as_string() == "<EOF>"
 
-def test_comment_between_code():
-    """85. Comments between tokens"""
+def test_85():
     tokenizer = Tokenizer("a /* skip */ b // skip \n c")
     assert tokenizer.get_tokens_as_string() == "a,b,c,<EOF>"
 
-
-# ========== Complex Lexing & Edge Cases (Tests 86-100) ==========
-
-def test_complex_tight_arithmetic():
-    """86. Arithmetic without spaces"""
+def test_86():
     tokenizer = Tokenizer("a=b+c*d")
     assert tokenizer.get_tokens_as_string() == "a,=,b,+,c,*,d,<EOF>"
 
-def test_complex_struct_access():
-    """87. Struct member access"""
+def test_87():
     tokenizer = Tokenizer("person.name")
     assert tokenizer.get_tokens_as_string() == "person,.,name,<EOF>"
 
-def test_complex_struct_access_increment():
-    """88. Struct member increment"""
+def test_88():
     tokenizer = Tokenizer("p.x++")
     assert tokenizer.get_tokens_as_string() == "p,.,x,++,<EOF>"
 
-def test_complex_function_call():
-    """89. Function call"""
+def test_89():
     tokenizer = Tokenizer("add(1, 2)")
     assert tokenizer.get_tokens_as_string() == "add,(,1,,,2,),<EOF>"
 
-def test_complex_float_vs_member():
-    """90. Float vs Member Access Distinguisher"""
+def test_90():
     tokenizer = Tokenizer("1.x")
     assert tokenizer.get_tokens_as_string() == "1.,x,<EOF>"
 
-def test_complex_comparison_no_space():
-    """91. Comparison without space"""
+def test_91():
     tokenizer = Tokenizer("i<10")
     assert tokenizer.get_tokens_as_string() == "i,<,10,<EOF>"
 
-def test_complex_comparison_equal_no_space():
-    """92. Equality without space"""
+def test_92():
     tokenizer = Tokenizer("x==y")
     assert tokenizer.get_tokens_as_string() == "x,==,y,<EOF>"
 
-def test_complex_negative_number_logic():
-    """93. Negative number tokenization"""
+def test_93():
     tokenizer = Tokenizer("-45")
     assert tokenizer.get_tokens_as_string() == "-,45,<EOF>"
 
-def test_complex_negative_float():
-    """94. Negative float tokenization"""
+def test_94():
     tokenizer = Tokenizer("-3.14")
     assert tokenizer.get_tokens_as_string() == "-,3.14,<EOF>"
 
-def test_complex_struct_declaration():
-    """95. Struct declaration tokens"""
+def test_95():
     tokenizer = Tokenizer("struct Point { int x; };")
     assert tokenizer.get_tokens_as_string() == "struct,Point,{,int,x,;,},;,<EOF>"
 
-def test_complex_escaped_string_logic():
-    """96. String with escaped backslash at end"""
+def test_96():
     tokenizer = Tokenizer('"foo\\\\"')
     assert tokenizer.get_tokens_as_string() == "foo\\\\,<EOF>"
 
-def test_complex_increment_space():
-    """97. Increment with space (invalid as single token)"""
+def test_97():
     tokenizer = Tokenizer("+ +")
     assert tokenizer.get_tokens_as_string() == "+,+,<EOF>"
 
-def test_complex_decrement_nospace():
-    """98. Decrement no space"""
+def test_98():
     tokenizer = Tokenizer("i--")
     assert tokenizer.get_tokens_as_string() == "i,--,<EOF>"
 
-def test_complex_keyword_prefix():
-    """99. Keyword as prefix of identifier"""
+def test_99():
     tokenizer = Tokenizer("integer")
     assert tokenizer.get_tokens_as_string() == "integer,<EOF>"
 
-def test_complex_float_exponent_case():
-    """100. Float with lowercase e and signed exponent"""
+def test_100():
     tokenizer = Tokenizer("1.2e+5")
     assert tokenizer.get_tokens_as_string() == "1.2e+5,<EOF>"

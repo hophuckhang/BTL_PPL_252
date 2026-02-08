@@ -25,29 +25,31 @@ options{
 }
 
 // TODO: Define grammar rules here
-program: (func_decl_list | struct_decl_list) EOF | ;
+program: decl_list EOF;
+decl_list: decl_list decl | ;
+decl: func_decl | struct_decl;
 
 // ===================== PARSER - DECLARATIONS =====================
 
-func_decl_list: func_decl_list func_decl | func_decl;
+func_decl: (typ | VOID | ) ID LEFT_PAREN param_list RIGHT_PAREN LEFT_BRACE stmt_list RIGHT_BRACE;
 
-func_decl: typ ID LEFT_PAREN param_list RIGHT_PAREN LEFT_BRACE stmt_list RIGHT_BRACE;
+param_list: param_list_exist | ;
 
-param_list: param_list COMMA param_decl | ;
+param_list_exist: param_decl COMMA param_list_exist | param_decl;
 
 param_decl: typ ID;
 
-struct_decl_list: struct_decl_list struct_decl | struct_decl;
+struct_decl: STRUCT ID LEFT_BRACE struct_member_list RIGHT_BRACE SEMICOLON;
 
-struct_decl: struct_typ ID LEFT_BRACE struct_member_list RIGHT_BRACE SEMICOLON;
-
-struct_member_list: struct_member_list struct_member | struct_member;
+struct_member_list: struct_member_list struct_member | ;
 
 struct_member: typ ID SEMICOLON;
 
-struct_var_decl_list: struct_var_decl_list struct_var_decl | struct_var_decl;
+struct_var_decl_list: struct_var_decl_list_exist | ;
 
-struct_var_decl: ID ID SEMICOLON | ID ID ASSIGNMENT LEFT_BRACE struct_var_member_list RIGHT_BRACE SEMICOLON;
+struct_var_decl_list_exist: struct_var_decl_list_exist COMMA struct_var_decl | struct_var_decl;
+
+struct_var_decl: ID ID SEMICOLON | ID ID ASSIGNMENT LEFT_BRACE (struct_var_member_list | )RIGHT_BRACE SEMICOLON;
 
 struct_var_member_list: struct_var_member_list COMMA struct_var_member | ;
 
@@ -63,19 +65,21 @@ explicit_var_decl: typ ID SEMICOLON | typ ID ASSIGNMENT assign_expr SEMICOLON;
 
 // ===================== PARSER - TYPES =====================
 
-typ: primitive_typ | struct_typ;
+typ: primitive_typ | ID;
 
-primitive_typ: INT | FLOAT | STRING | VOID;
-
-struct_typ: STRUCT;
+primitive_typ: INT | FLOAT | STRING;
 
 // ===================== PARSER - EXPRESSIONS =====================
 
-expr_list: expr_list expr | ;
+expr_list: expr_list_exist | ;
+
+expr_list_exist: expr_list_exist COMMA expr | expr;
 
 expr: assign_expr;
 
-assign_expr: or_expr ASSIGNMENT assign_expr | or_expr; //right
+assign_expr: assign_lhs ASSIGNMENT assign_expr | or_expr; //right
+
+assign_lhs: ID | member_access_expr MEMBER_ACCESS ID;
 
 or_expr: or_expr LOGICAL_OR and_expr | and_expr; //left
 
@@ -89,25 +93,27 @@ add_sub_expr: add_sub_expr (ADDITION | SUBTRACTION) multi_div_mod_expr | multi_d
 
 multi_div_mod_expr: multi_div_mod_expr (MULTI | DIVISION | MODULO) unary_expr | unary_expr; //left
 
-unary_expr: (LOGICAL_NOT | SUBTRACTION | ADDITION) unary_expr | prefix_expr; //left
+unary_expr: (LOGICAL_NOT | SUBTRACTION | ADDITION) unary_expr | prefix_expr; //
 
 prefix_expr: (INCREMENT | DECREMENT) prefix_expr | postfix_expr; //right
 
-postfix_expr: postfix_expr (INCREMENT | DECREMENT) member_access_expr | member_access_expr; //left
+postfix_expr: postfix_expr (INCREMENT | DECREMENT) | member_access_expr; //left
 
-member_access_expr: member_access_expr MEMBER_ACCESS paren_expr | paren_expr; //left
+member_access_expr: member_access_expr MEMBER_ACCESS ID | operand; //left
 
-paren_expr: LEFT_PAREN expr RIGHT_PAREN | operand;
+operand: INT_LIT | FLOAT_LIT | STRING_LIT | struct_lit | func_call_expr | paren_expr | ID;
 
-operand: INT_LIT | FLOAT_LIT | STRING_LIT | ID | func_call_expr;
+struct_lit: LEFT_BRACE expr_list RIGHT_BRACE;
 
-func_call_expr: ID LEFT_PAREN expr_list RIGHT_PAREN; 
+func_call_expr: ID LEFT_PAREN expr_list RIGHT_PAREN;
+
+paren_expr: LEFT_PAREN expr RIGHT_PAREN;
 
 // ===================== PARSER - STATEMENTS =====================
 
 stmt_list: stmt_list stmt | ;
 
-stmt: var_decl_stmt | block_stmt | if_stmt | while_stmt | for_stmt | switch_stmt | break_stmt | continue_stmt | return_stmt | expr_stmt SEMICOLON;
+stmt: var_decl_stmt | block_stmt | if_stmt | while_stmt | for_stmt | switch_stmt | break_stmt | continue_stmt | return_stmt | expr_stmt;
 
 var_decl_stmt: var_decl;
 
@@ -123,16 +129,16 @@ if_stmt: IF LEFT_PAREN expr RIGHT_PAREN
 
 while_stmt: WHILE LEFT_PAREN expr RIGHT_PAREN stmt;
 
-for_stmt: FOR LEFT_PAREN init condition SEMICOLON update RIGHT_PAREN stmt
-| FOR LEFT_PAREN init condition SEMICOLON update RIGHT_PAREN LEFT_BRACE stmt RIGHT_BRACE;
-init: var_decl | assign_expr SEMICOLON;
-condition: expr;
-update: assign_expr | prefix_expr | postfix_expr;
+for_stmt: FOR LEFT_PAREN init condition SEMICOLON update RIGHT_PAREN stmt;
+init: var_decl | assign_lhs ASSIGNMENT expr SEMICOLON | SEMICOLON;
+condition: expr | ;
+update: assign_lhs ASSIGNMENT expr | (INCREMENT | DECREMENT) prefix_expr | postfix_expr (INCREMENT | DECREMENT) | ;
 
 switch_stmt: SWITCH LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE switch_body RIGHT_BRACE;
-switch_body: case_list DEFAULT COLON stmt_list | case_list | ;
-case_list: case_list CASE case_expr COLON stmt_list | CASE case_expr COLON stmt_list;
-case_expr: expr;
+switch_body: case_list | case_list_branch DEFAULT COLON stmt_list case_list_branch | ;
+case_list_branch: case_list | ;
+case_list: case_list case_stmt | case_stmt;
+case_stmt: CASE expr COLON stmt_list;
 
 break_stmt: BREAK SEMICOLON;
 
@@ -140,7 +146,7 @@ continue_stmt: CONTINUE SEMICOLON;
 
 return_stmt: RETURN (expr | ) SEMICOLON;
 
-expr_stmt: expr;
+expr_stmt: expr SEMICOLON;
 
 // ===================== LEXER - COMMENTS =====================
 
@@ -168,6 +174,8 @@ WHILE: 'while';
 
 // ===================== LEXER - OPERATORS =====================
 
+INCREMENT: '++';
+DECREMENT: '--';
 ADDITION: '+';
 SUBTRACTION: '-';
 MULTI: '*';
@@ -182,15 +190,11 @@ GREATER_THAN_EQUAL: '>=';
 LOGICAL_OR: '||';
 LOGICAL_AND: '&&';
 LOGICAL_NOT: '!';
-INCREMENT: '++';
-DECREMENT: '--';
 ASSIGNMENT: '=';
 MEMBER_ACCESS: '.';
 
 // ===================== LEXER - SEPARATORS =====================
 
-LEFT_SQUARE_BRACKET: '[';
-RIGHT_SQUARE_BRACKET: ']';
 LEFT_BRACE: '{';
 RIGHT_BRACE: '}';
 LEFT_PAREN: '(';
@@ -207,10 +211,9 @@ ID: [A-Za-z_] [A-Za-z_0-9]*;
 
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
-fragment DEC_PART: '.' DIGIT*;
 fragment EXP_PART: [eE] [+-]? DIGIT+;
 INT_LIT: DIGIT+;
-FLOAT_LIT: DIGIT+ '.' DIGIT* EXP_PART? | '.' DIGIT+ EXP_PART? | DIGIT+ EXP_PART | '.' EXP_PART;
+FLOAT_LIT: DIGIT+ '.' DIGIT* EXP_PART? | '.' DIGIT+ EXP_PART? | DIGIT+ EXP_PART;
 STRING_LIT: '"' CHAR_LIT* '"' {self.text = self.text[1:-1]};
 fragment CHAR_LIT: ~["\\\r\n] | ESCAPE_SEQ | '\\"';
 fragment ESCAPE_SEQ: '\\b' | '\\f' | '\\r' | '\\n' | '\\t' | '\\"' | '\\\\';
@@ -225,18 +228,16 @@ fragment ESC: '\\b'
 fragment NON_ESC : ~[\n\r"\\];			
 fragment ILL_ESC : '\\' ~[bfrnt'\\];
 
+WS : [ \t\r\n\f]+ -> skip ; 
 
-WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs
 
-UNCLOSE_STRING: '"' (NON_ESC | ESC)* ( '\r\n' | '\n' | EOF ) {
-	if(len(self.text) >= 2 and self.text[-1] == '\n' and self.text[-2] == '\r'):
+UNCLOSE_STRING: '"' CHAR_LIT*  '\\'? ('\n' | '\r\n' | EOF) {
+    if self.text[-1] == '\n' and self.text[-2] == '\r':
         raise UncloseString(self.text[1:-2])
-	elif(self.text[-1] == '\n'):
-		raise UncloseString(self.text[1:-1])
-	else:
+    elif self.text[-1] == '\n':
+        raise UncloseString(self.text[1:-1])
+    else:
         raise UncloseString(self.text[1:])
 };
-ILLEGAL_ESCAPE:'"' (NON_ESC | ESC)* ILL_ESC { 
-	raise IllegalEscape(self.text[1:])
-};
+ILLEGAL_ESCAPE: '"' (NON_ESC | ESCAPE_SEQ)* '\\' ~[bfrnt"\\\r\n] { raise IllegalEscape(self.text[1:]) };
 ERROR_CHAR: . {raise ErrorToken(self.text)};
