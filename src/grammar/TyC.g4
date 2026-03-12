@@ -59,9 +59,9 @@ var_decl_list: var_decl_list var_decl | var_decl;
 
 var_decl: auto_var_decl | explicit_var_decl;
 
-auto_var_decl: AUTO ID SEMICOLON | AUTO ID ASSIGNMENT assign_expr SEMICOLON;
+auto_var_decl: AUTO ID SEMICOLON | AUTO ID ASSIGNMENT expr SEMICOLON;
 
-explicit_var_decl: typ ID SEMICOLON | typ ID ASSIGNMENT assign_expr SEMICOLON;
+explicit_var_decl: typ ID SEMICOLON | typ ID ASSIGNMENT expr SEMICOLON;
 
 // ===================== PARSER - TYPES =====================
 
@@ -71,15 +71,11 @@ primitive_typ: INT | FLOAT | STRING;
 
 // ===================== PARSER - EXPRESSIONS =====================
 
-expr_list: expr_list_exist | ;
+expr_list: expr_list COMMA expr | expr;
 
-expr_list_exist: expr_list_exist COMMA expr | expr;
+expr: assign_lhs ASSIGNMENT expr | or_expr; //right
 
-expr: assign_expr;
-
-assign_expr: assign_lhs ASSIGNMENT assign_expr | or_expr; //right
-
-assign_lhs: ID | member_access_expr MEMBER_ACCESS ID;
+assign_lhs: ID | member_access_expr;
 
 or_expr: or_expr LOGICAL_OR and_expr | and_expr; //left
 
@@ -103,7 +99,7 @@ member_access_expr: member_access_expr MEMBER_ACCESS ID | operand; //left
 
 operand: INT_LIT | FLOAT_LIT | STRING_LIT | struct_lit | func_call_expr | paren_expr | ID;
 
-struct_lit: LEFT_BRACE expr_list RIGHT_BRACE;
+struct_lit: LEFT_BRACE (expr_list | ) RIGHT_BRACE;
 
 func_call_expr: ID LEFT_PAREN expr_list RIGHT_PAREN;
 
@@ -130,9 +126,10 @@ if_stmt: IF LEFT_PAREN expr RIGHT_PAREN
 while_stmt: WHILE LEFT_PAREN expr RIGHT_PAREN stmt;
 
 for_stmt: FOR LEFT_PAREN init condition SEMICOLON update RIGHT_PAREN stmt;
-init: var_decl | assign_lhs ASSIGNMENT expr SEMICOLON | SEMICOLON;
+assign_for: assign_lhs ASSIGNMENT expr;
+init: var_decl | assign_for SEMICOLON | SEMICOLON;
 condition: expr | ;
-update: assign_lhs ASSIGNMENT expr | (INCREMENT | DECREMENT) prefix_expr | postfix_expr (INCREMENT | DECREMENT) | ;
+update: assign_for | (INCREMENT | DECREMENT) prefix_expr | postfix_expr (INCREMENT | DECREMENT) | ;
 
 switch_stmt: SWITCH LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE switch_body RIGHT_BRACE;
 switch_body: case_list | case_list_branch DEFAULT COLON stmt_list case_list_branch | ;
