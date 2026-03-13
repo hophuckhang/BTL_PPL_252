@@ -101,7 +101,7 @@ operand: INT_LIT | FLOAT_LIT | STRING_LIT | struct_lit | func_call_expr | paren_
 
 struct_lit: LEFT_BRACE (expr_list | ) RIGHT_BRACE;
 
-func_call_expr: ID LEFT_PAREN expr_list RIGHT_PAREN;
+func_call_expr: ID LEFT_PAREN (expr_list | ) RIGHT_PAREN;
 
 paren_expr: LEFT_PAREN expr RIGHT_PAREN;
 
